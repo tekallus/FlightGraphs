@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { Card, Table, Row, Col, Input, Select, Button } from "antd";
 import {
   CloseOutlined,
@@ -39,9 +39,30 @@ const App: React.FC = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [data, setData] = useState<DataType[]>(initialData);
   const [favorites, setFavorites] = useState<DataType[]>([]);
-  const [makeFavorite, setMakeFavorite] = useState(false); //useState hook'unu kullanarak bileşenin içinde kullanacağımız durumları tanımlıyoruz.
+  const [makeFavorite, setMakeFavorite] = useState(false); 
+  //useState hook'unu kullanarak bileşenin içinde kullanacağımız durumları tanımlıyoruz.
   //selectedRowKeys, seçilen satırların anahtarlarını içerir. data, tüm veri öğelerini içerir. favorites, favorilere eklenen öğeleri içerir.
   //makeFavorite, favori oluşturma işleminin durumunu içerir.
+  const [username, setUsername] = useState(""); // Kullanıcı adını saklamak için state
+
+  useEffect(() => {
+    const storedUsername = localStorage.getItem("username");
+    if (storedUsername) {
+      setUsername(storedUsername);
+    }
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("beforeunload", handleUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleUnload);
+    };
+  }, []);
+  const handleUnload = (event: BeforeUnloadEvent) => {
+    const confirmationMessage = "Are you sure you want to leave? Changes may not be saved.";
+    event.returnValue = confirmationMessage;
+    return confirmationMessage;
+  };
 
   const rowSelection = {
     selectedRowKeys,
@@ -76,6 +97,13 @@ const App: React.FC = () => {
     setFavorites([]);
   }; //Tüm favorileri sıfırlamak için bir işlev tanımlıyoruz.
 
+  const handleSaveUsername = () => {
+    const inputUsername = prompt("Please enter your username:", username);
+    if (inputUsername !== null) {
+      setUsername(inputUsername);
+      localStorage.setItem("username", inputUsername);
+    }
+  };
   return (
     <div
       className="custom-window"
@@ -151,16 +179,20 @@ const App: React.FC = () => {
           {/* Favori öğelerin listesi */}
           <Table rowKey="key" columns={columns} dataSource={favorites} pagination={false} rowSelection={rowSelection} scroll={{ y: 240 }} />
         </Card>
+
         {/* Favori öğeleriyle ilgili işlevler */}
         <div style={{ marginTop: '20px' }}>
           {/* Favori öğeleri silme düğmesi */}
           <Button type="primary" style={{ marginRight: '8px' }} onClick={handleDeleteFavorite}>Delete Favorite</Button>
           {/* Tüm favorileri sıfırlama düğmesi */}
           <Button type="primary" style={{ marginRight: '8px' }} onClick={handleResetFavorites}>Reset Favorites</Button>
+          <Button type="primary" onClick={handleSaveUsername}>
+          Save Favorites
+        </Button>
         </div>
       </Col>
     </Row>
   </div>
 )
       }
-export default App;
+      export default App;
