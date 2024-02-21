@@ -83,15 +83,24 @@ const App: React.FC = () => {
 
   
   const handleSaveFavorites = () => {
+    // Favori grafikleri JSON formatına dönüştürme
+    
+    
     localStorage.setItem("favorites", JSON.stringify(favorites));
+    console.log("Favorites saved successfully!");
+   
   };
 
   useEffect(() => {
+    // Yerel depolamadan favori verileri al
     const storedFavorites = localStorage.getItem("favorites");
+    
+    // Eğer kayıtlı bir veri varsa, onu favorilere at
     if (storedFavorites) {
       setFavorites(JSON.parse(storedFavorites));
     }
-  }, []);
+}, []); // Boş bağımlılık dizisi, bu etkinin yalnızca bir kere çalışmasını sağlar
+
   
   return (
     <div
